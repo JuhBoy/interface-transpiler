@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:vs_shell="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
              mc:Ignorable="d"
              d:DesignHeight="1000" d:DesignWidth="300"
              Name="MyToolWindow">
@@ -18,8 +19,13 @@
                 <RowDefinition Height="50"></RowDefinition>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Vertical">
-                <TextBlock FontSize="15" Margin="0 10 0 0" HorizontalAlignment="Center">ISharp Transcompiler</TextBlock>
-                <TextBlock Margin="10" FontSize="12" HorizontalAlignment="Center">Transcompile C# properties/fields to TypeScript interface.</TextBlock>
+                <TextBlock FontSize="17" Margin="0 10 0 0"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center" 
+                           Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}">
+                    ISharp Transcompiler
+                </TextBlock>
+                <TextBlock Margin="10" FontSize="12" HorizontalAlignment="Center" Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}">Transcompile C# properties/fields to TypeScript interface.</TextBlock>
             </StackPanel>
 
             <Grid Grid.Row="1" Margin="10">
@@ -29,9 +35,22 @@
                     <RowDefinition Height="30"></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" FontSize="13" FontWeight="DemiBold" FontStyle="Normal">C# Input File</TextBlock>
-                <ComboBox Name="FileCombo" Grid.Row="1" IsEditable="False" SelectionChanged="InputFileCombo_OnSelectionChanged" />
-                <TextBlock Name="FileFullPath" Text="{Binding FileSelected}" FontStyle="Italic" Grid.Row="2" />
+                <TextBlock Grid.Row="0" FontSize="13" FontWeight="DemiBold" FontStyle="Normal" Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}">C# Input File</TextBlock>
+                
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Name="FileCombo"
+                             Grid.Column="0"
+                             IsEnabled="False"
+                             Background="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}"
+                             Text="{Binding FileSelected}"/>
+                    <Button Grid.Column="1" Click="OpenFile_ButtonClick">
+                        ...
+                    </Button>
+                </Grid>
             </Grid>
 
             <Grid Grid.Row="2" Margin="10">
@@ -42,9 +61,22 @@
                     <RowDefinition Height="50"></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" FontSize="13" FontWeight="DemiBold" FontStyle="Normal">TypeScript Output File Name</TextBlock>
-                <TextBox Grid.Row="1" Width="300" HorizontalAlignment="Left" LostFocus="UIElement_OnLostFocus" />
-                <TextBlock Grid.Row="2" Text="Default is C# filename selected" />
+                <TextBlock Grid.Row="0" FontSize="13" FontWeight="DemiBold" FontStyle="Normal" Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}">
+                    TypeScript Output Folder
+                </TextBlock>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10*" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0" 
+                             IsEnabled="False"
+                             Text="{Binding OutputPath}"
+                             Background="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowBackgroundBrushKey}}" />
+                    <Button Grid.Column="1" Click="OpenFolder_Click">
+                        ...
+                    </Button>
+                </Grid>
             </Grid>
 
             <Grid Grid.Row="3" Margin="10">
@@ -58,16 +90,16 @@
                     <RowDefinition Height="25"></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Row="0" Margin="0 0 0 0" FontSize="15" FontWeight="Bold" FontStyle="Normal">Options</TextBlock>
+                <TextBlock Grid.Row="0" Margin="0 0 0 0" FontSize="15" FontWeight="Bold" FontStyle="Normal" Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}">Options</TextBlock>
 
-                <TextBlock Grid.Row="1" FontSize="13" FontWeight="DemiBold" FontStyle="Normal">Visibility Scope</TextBlock>
+                <TextBlock Grid.Row="1" FontSize="13" FontWeight="DemiBold" FontStyle="Normal" Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}">Visibility Scope</TextBlock>
                 <ComboBox Name="VisibilityCombo" Grid.Row="2" Height="22" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-                <TextBlock Grid.Row="3" FontSize="13" FontWeight="DemiBold" FontStyle="Normal">Inclusion Strategy</TextBlock>
+                <TextBlock Grid.Row="3" FontSize="13" FontWeight="DemiBold" FontStyle="Normal" Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}">Inclusion Strategy</TextBlock>
                 <ComboBox Name="StrategyCombo" Grid.Row="4" Height="22" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-                <CheckBox Grid.Row="5" Name="OverrideFile" Height="15">Override Existing File</CheckBox>
-                <TextBlock Grid.Row="6" FontSize="12" FontWeight="Normal" FontStyle="Italic">If not checked, Generated interface will be appended to the file</TextBlock>
+                <CheckBox Grid.Row="5" Name="OverrideFile" Height="15" Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}">Override Existing File</CheckBox>
+                <TextBlock Grid.Row="6" FontSize="12" FontWeight="Normal" FontStyle="Italic" Foreground="{DynamicResource {x:Static vs_shell:EnvironmentColors.ToolWindowTextBrushKey}}">If not checked, Generated interface will be appended to the file</TextBlock>
             </Grid>
             <Button Margin="10" Grid.Row="4" Height="25" Click="Compile_OnClick">Transcompile</Button>
         </Grid>

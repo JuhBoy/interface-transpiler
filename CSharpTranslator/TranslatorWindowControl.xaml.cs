@@ -1,10 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
-using System.ComponentModel.Design;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Forms;
 using CSharpTranslator.Annotations;
 using CSharpTranslator.src;
 using CSharpTranslator.src.Accessors;
@@ -41,43 +40,26 @@ namespace CSharpTranslator
 
             VisibilityCombo.Items.MoveCurrentToPosition(0);
             StrategyCombo.Items.MoveCurrentToPosition(0);
-
-            CSharpFileListing();
         }
 
-        public string FileSelected { get; set; }
+        public string FileSelected { get; set; } = "";
         public string OutputPath { get; set; }
-        public string SolutionPath { get; set; }
+        
 
-        /// <summary>
-        /// Fetch All C# Files in project
-        /// </summary>
-        /// <returns>All C# Files Except Program.cs and Startup.cs</returns>
-        private void CSharpFileListing()
+        private void OpenFile_ButtonClick(object sender, RoutedEventArgs e)
         {
-            SolutionPath = Directory.GetParent(Environment.CurrentDirectory).Parent.FullName;
+            using (OpenFileDialog fileDialog = new OpenFileDialog())
+            {
+                fileDialog.Multiselect = false;
+                fileDialog.ShowDialog();
 
-            string[] allFiles = Directory.GetFiles(SolutionPath, "*.cs", SearchOption.AllDirectories);
-            _files = allFiles.Where(file => file.IndexOf(@"\obj") == -1 && file.IndexOf(@"\bin") == -1).ToArray();
+                if (fileDialog.FileNames == null ||
+                    fileDialog.FileNames.Length < 1) return;
+                if (Path.GetExtension(fileDialog.FileNames[0]) != ".cs") return;
 
-            string[] fileNames = _files.Select(Path.GetFileName).ToArray();
-            FileCombo.ItemsSource = fileNames;
-        }
-
-        private void InputFileCombo_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            string list = e.AddedItems[0] as string;
-            if (list is null) return;
-
-            int i = FileCombo.SelectedIndex;
-            FileSelected = _files[i];
-            OnPropertyChanged(nameof(FileSelected));
-        }
-
-        private void UIElement_OnLostFocus(object sender, RoutedEventArgs e)
-        {
-            string combinedPath = Path.Combine(SolutionPath, ((TextBox)e.Source).Text);
-            OutputPath = combinedPath;
+                FileSelected = fileDialog.FileNames[0];
+                OnPropertyChanged(nameof(FileSelected));
+            }
         }
 
         private void Compile_OnClick(object sender, RoutedEventArgs e)
@@ -104,29 +86,27 @@ namespace CSharpTranslator
                 translator.Flush();
                 MessageBox.Show("File has been generated [" + configuration.OutputPath + "]");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageBox.Show("File Generation Failed, ensure input file contains a class/interface declaration inside a valid namespace");
+                MessageBox.Show($"File Generation Failed: {ex.Message}");
             }
         }
 
         private string GetOutputPath()
         {
             if (OutputPath == null)
-            {
-                string name = Path.GetFileName(FileSelected);
-                if (name != null)
-                {
-                    int end = name.IndexOf(".cs");
-                    name = name.Substring(0, end);
-                }
-                else
-                    name = "generated_file";
+                OutputPath = "C:/";
 
-                OutputPath = Path.Combine(SolutionPath, name);
+            string name = Path.GetFileName(FileSelected);
+            if (name != null)
+            {
+                int end = name.IndexOf(".cs");
+                name = name.Substring(0, end);
             }
-                
-            return OutputPath;
+            else
+                name = "generated_file";
+
+            return Path.Combine(OutputPath, name);
         }
 
         private bool GetOverride()
@@ -171,6 +151,19 @@ namespace CSharpTranslator
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void OpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            using (FolderBrowserDialog dialog = new FolderBrowserDialog())
+            {
+                DialogResult result = dialog.ShowDialog();
+                if (result == DialogResult.OK && !string.IsNullOrEmpty(dialog.SelectedPath))
+                {
+                    OutputPath = dialog.SelectedPath;
+                    OnPropertyChanged(nameof(OutputPath));
+                }
+            }
         }
     }
 }
