@@ -99,9 +99,15 @@ namespace CSharpTranslator.src.SyntaxHelpers
         {
             if (node.Kind() != SyntaxKind.PropertyDeclaration) return false;
 
-            var getSetNode = node.ChildNodes().ToArray()[1];
-            var accessorsCount = getSetNode.ChildNodes().Count();
-            return accessorsCount < 2;
+            foreach (var child in node.ChildNodes().ToArray())
+            {
+                if (!child.IsKind(SyntaxKind.AccessorList)) continue;
+                var children = child.ChildNodes().ToArray();
+                if (children.Any(innerChildNode => innerChildNode.IsKind(SyntaxKind.SetAccessorDeclaration)))
+                    return false;
+            }
+
+            return true;
         }
     }
 }

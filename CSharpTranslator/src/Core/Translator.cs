@@ -64,16 +64,15 @@ namespace CSharpTranslator.src.Core
             SyntaxNode[] children = node.ChildNodes().ToArray();
             if (children.Length < 1) return;
 
-            SyntaxNode firstChild = children.First();
-
             switch (topLevelKind)
             {
                 case SyntaxKind.PropertyDeclaration:
-                    type       = Extractors.ExtractTypesFromProperty(firstChild);
+                    type       = Extractors.ExtractTypesFromProperty(GetPropertyTypeNode(node));
                     name       = Extractors.ExtractName(node);
                     isReadonly = Extractors.IsReadOnly(node);
                     break;
                 case SyntaxKind.FieldDeclaration:
+                    SyntaxNode firstChild = children.First();
                     type = Extractors.ExtractTypesFromField(firstChild);
                     name = Extractors.ExtractName(firstChild);
                     break;
@@ -139,6 +138,13 @@ namespace CSharpTranslator.src.Core
         private SyntaxNode GetNamespaceNode()
         {
             return Root.ChildNodes().FirstOrDefault(node => node.Kind() == SyntaxKind.NamespaceDeclaration);
+        }
+
+        private SyntaxNode GetPropertyTypeNode(SyntaxNode node)
+        {
+            return node.ChildNodes().FirstOrDefault(n => n.IsKind(SyntaxKind.PredefinedType) ||
+                                                         n.IsKind(SyntaxKind.IdentifierName) ||
+                                                         n.IsKind(SyntaxKind.GenericName));
         }
 
         public bool Flush()

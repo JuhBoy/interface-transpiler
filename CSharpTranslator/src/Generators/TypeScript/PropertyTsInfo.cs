@@ -32,7 +32,7 @@ namespace CSharpTranslator.src.Generators.TypeScript
             {
                 case SyntaxKind.IdentifierToken:
                 case SyntaxKind.IdentifierName:
-                    text = type.RawKind;
+                    text = GetKnownIdentifier(type.RawKind);
                     break;
                 case SyntaxKind.IntKeyword:
                 case SyntaxKind.FloatKeyword:
@@ -42,6 +42,12 @@ namespace CSharpTranslator.src.Generators.TypeScript
                     break;
                 case SyntaxKind.StringKeyword:
                     text = "string";
+                    break;
+                case SyntaxKind.BoolKeyword:
+                    text = "boolean";
+                    break;
+                case SyntaxKind.ObjectKeyword:
+                    text = "object";
                     break;
                 default:
                     text = "any";
@@ -75,6 +81,17 @@ namespace CSharpTranslator.src.Generators.TypeScript
                         Left = GlobalTsInfo.SpaceToken,
                         Right = GlobalTsInfo.CloseExpressionToken + GlobalTsInfo.LineJump
                     };
+            }
+        }
+
+        private static string GetKnownIdentifier(string rawKind)
+        {
+            switch (rawKind)
+            {
+                case "DateTime":
+                    return "Date";
+                default:
+                    return rawKind;
             }
         }
     }
