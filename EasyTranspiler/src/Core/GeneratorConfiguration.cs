@@ -16,6 +16,7 @@ namespace CSharpTranslator.src.Core
 
         public Visibility Visibility { get; set; } = Visibility.Private;
         public InclusionStrategy Strategy { get; set; } = InclusionStrategy.PropertiesAndFields;
+        public string AttributeNameConstraint { get; set; }
         public bool OverrideExistingFile { get; set; }
         public string OutputPath { get; set; }
         public string InputPath
@@ -31,7 +32,7 @@ namespace CSharpTranslator.src.Core
         /// <param name="inputPath">A complete file path to the source C# file</param>
         private void ValidInputPath(string inputPath)
         {
-            if (!File.Exists(inputPath))
+            if (!File.Exists(inputPath) && !Directory.Exists(inputPath))
                 throw new ArgumentException("Input File doesn't exist");
         }
         #endregion

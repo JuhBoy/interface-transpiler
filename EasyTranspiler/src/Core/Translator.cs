@@ -8,6 +8,7 @@ using CSharpTranslator.src.Generators;
 using CSharpTranslator.src.SyntaxHelpers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CSharpTranslator.src.Core
 {
@@ -19,22 +20,49 @@ namespace CSharpTranslator.src.Core
         private SyntaxTree Tree { get; set; }
         private SyntaxNode Root { get; set; }
         private CSharpNode Head { get; set; }
-        private FileBuilder Builder { get; set; }
+        private List<FileBuilder> Builder { get; set; }
+
+        private string CurrentFilePath { get; set; }
+        private string CurrentOutputPath { get; set; }
 
         public Translator(IGeneratorConfiguration configuration, GeneratorType generatorType)
         {
-            Configuration = configuration ??
-                            throw new NullReferenceException("Configuration Cannot be null");
-            Generator     = GeneratorProvider.Get(generatorType);
+            Configuration   = configuration ?? 
+                              throw new NullReferenceException("Configuration Cannot be null");
+            Generator       = GeneratorProvider.Get(generatorType);
+            CurrentFilePath = Configuration.InputPath;
+            Builder = new List<FileBuilder>();
         }
 
         public void Dispose()
         { }
 
+        public void CompileRecursively()
+        {
+            string[] files = Directory.GetFiles(Configuration.InputPath, "*.cs", SearchOption.AllDirectories);
+
+            foreach (var file in files)
+            {
+                CurrentFilePath = file;
+                try
+                {
+                    Compile();
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                catch (FileLoadException ex)
+                {
+                    Console.Write(ex.Message);
+                }
+            }
+        }
+
         /// <inheritdoc cref="ITranslator.Compile"/>
         public void Compile()
         {
-            string text = File.ReadAllText(Configuration.InputPath, Encoding.UTF8);
+            string text = File.ReadAllText(CurrentFilePath, Encoding.UTF8);
 
             Tree = CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default);
             Root = Tree.GetRoot();
@@ -50,8 +78,8 @@ namespace CSharpTranslator.src.Core
             foreach (var child in children) InsertNodeInTree(child);
 
             ISyntaxTree head = Generator.GetSyntaxTree(Head);
-            Builder = new FileBuilder(Configuration.OutputPath, Configuration.OverrideExistingFile);
-            Builder.Build(head);
+            Builder.Add(new FileBuilder(CurrentOutputPath, Configuration.OverrideExistingFile));
+            Builder.Last().Build(head);
         }
 
         private void InsertNodeInTree(SyntaxNode node)
@@ -118,21 +146,61 @@ namespace CSharpTranslator.src.Core
             Head         = new CSharpNode(name, nodeType) {Visibility = Configuration.Visibility};
         }
 
-        private static SyntaxNode GetDeclarationNode(SyntaxNode namespaceNode)
+        private SyntaxNode GetDeclarationNode(SyntaxNode namespaceNode)
         {
             SyntaxNode classOrInterface = namespaceNode.ChildNodes().FirstOrDefault(node => node.Kind() == SyntaxKind.ClassDeclaration);
-            classOrInterface = classOrInterface ?? namespaceNode.ChildNodes().FirstOrDefault(node => node.Kind() == SyntaxKind.InterfaceDeclaration);
 
             if (classOrInterface == null)
-                throw new FileFormatException("Implementation not found");
+                throw new FileLoadException("Implementation not found");
+
+            bool isAuthorized = GetConstraintAuthorization(classOrInterface);
+            if (!isAuthorized)
+                throw new UnauthorizedAccessException(
+                    $"Class {Extractors.ExtractName(classOrInterface)} do not respect the Attribute constraint {Configuration.AttributeNameConstraint}");
+
+            classOrInterface = classOrInterface ?? namespaceNode.ChildNodes().FirstOrDefault(node => node.Kind() == SyntaxKind.InterfaceDeclaration);
 
             return classOrInterface;
+        }
+
+        private bool GetConstraintAuthorization(SyntaxNode classOrInterface)
+        {
+            if (!string.IsNullOrEmpty(Configuration.AttributeNameConstraint))
+            {
+                var attributeList = classOrInterface.ChildNodes().Where(child => child.IsKind(SyntaxKind.AttributeList)).ToList();
+                bool ok = attributeList.Any(attr =>
+                {
+                    var attributes = attr.ChildNodes().ToList();
+
+                    foreach (var attribute in attributes)
+                    {
+                        var attributeSyntax = attribute as AttributeSyntax;
+
+                        bool isConstraint = attributeSyntax?.Name.ToString().Equals(Configuration.AttributeNameConstraint) ?? false;
+                        string myname = attributeSyntax.Name.ToString();
+
+                        if (isConstraint)
+                        {
+                            var relativeOutputPath = attributeSyntax.ArgumentList.Arguments[0].Expression.ToString()
+                                .Replace("\"", "");
+                            string name = Path.GetFileName(CurrentFilePath) ?? "default.cs";
+                            CurrentOutputPath = Path.Combine(Configuration.OutputPath, relativeOutputPath, name);
+                            return true;
+                        }
+                    }
+
+                    return false;
+                });
+                if (!ok) return false;
+            }
+
+            return true;
         }
 
         private void ThrowIfNotCSharpLang()
         {
             if (Root.Language != "C#")
-                throw new FileFormatException("Input File Is not a c# Node tree");
+                throw new FileLoadException("Input File Is not a c# Node tree");
         }
 
         private SyntaxNode GetNamespaceNode()
@@ -149,7 +217,9 @@ namespace CSharpTranslator.src.Core
 
         public bool Flush()
         {
-            bool ok = Builder.Flush();
+            bool ok = true;
+            foreach (var fileBuilder in Builder)
+                ok &= fileBuilder.Flush();
             return ok;
         }
     }

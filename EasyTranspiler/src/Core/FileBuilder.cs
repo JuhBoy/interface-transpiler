@@ -55,6 +55,7 @@ namespace CSharpTranslator.src.Core
         {
             try
             {
+                Directory.CreateDirectory(Path.GetDirectoryName(_path) ?? "");
                 _path += _extension;
                 if (File.Exists(_path) && _overrideFile)
                     File.Delete(_path);
