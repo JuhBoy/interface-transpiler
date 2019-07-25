@@ -6,7 +6,6 @@ namespace CSharpTranslator.src.SyntaxHelpers
     {
         internal string RawKind { get; set; }
         internal SyntaxKind Kind { get; set; }
-
         internal string RawUnderlyingKind { get; set;}
         internal SyntaxKind UnderlyingKind { get; set; }
     }

@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Security;
+using CSharpTranslator.src.Core;
 
 namespace CSharpTranslator.src.Generators
 {
+    public enum Level { Sibling, Child }
+
     internal class TypeScriptSyntaxTree : ISyntaxTree
     {
+        public string Name { get; }
         public string Extension { get; }
-        public GenericNode Head { get; }
-        public int Size { get; }
+        public GenericNode Head { get; private set; }
+        public int Size { get; private set; }
 
-        internal TypeScriptSyntaxTree(GenericNode head, int size)
+        internal TypeScriptSyntaxTree(GenericNode head, int size, string name = "default_name")
         {
             Extension = ".ts";
+            Name = name;
             Head = head;
             Size = size;
         }
@@ -19,6 +25,29 @@ namespace CSharpTranslator.src.Generators
         public void TraverseTree(Action<GenericNode, bool> action)
         {
             Loop(action, Head);
+        }
+
+        public void Prepend(GenericNode node, Level level)
+        {
+            var head = Head;
+            if (level == Level.Sibling)
+            {
+                node.Next = head;
+                Head = node;
+            }
+            else
+            {
+                GenericNodeTree.PrependChild(ref head, ref node);
+            }
+            
+            Size++;
+        }
+
+        public void Append(GenericNode node)
+        {
+            var head = Head;
+            GenericNodeTree.AddChild(ref head, ref node);
+            Size++;
         }
 
         private static void Loop(Action<GenericNode, bool> action, GenericNode node)
@@ -70,6 +99,7 @@ namespace CSharpTranslator.src.Generators
         Field,
         Method,
         Interface,
-        Class
+        Class,
+        Import
     }
 }

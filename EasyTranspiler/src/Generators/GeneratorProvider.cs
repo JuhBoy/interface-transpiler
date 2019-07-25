@@ -1,6 +1,7 @@
 ﻿using System;
 using CSharpTranslator.src.Accessors;
 using CSharpTranslator.src.Generators.TypeScript;
+using EasyTranspiler.src.Generators.TypeScript;
 
 namespace CSharpTranslator.src.Generators
 {
@@ -11,7 +12,7 @@ namespace CSharpTranslator.src.Generators
             switch (type)
             {
                 case GeneratorType.TypeScript:
-                    return new TypeScriptGenerator();
+                    return new TypeScriptGenerator(new TypeScriptLinkingResolver());
                 default:
                     throw new ArgumentException("No Generator defined for this type");
             }

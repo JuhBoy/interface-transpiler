@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using CSharpTranslator.Annotations;
 using CSharpTranslator.src;
 using CSharpTranslator.src.Accessors;
+using EasyTranspiler.src;
 using MessageBox = System.Windows.MessageBox;
 using Visibility = CSharpTranslator.src.Accessors.Visibility;
 
@@ -81,7 +82,7 @@ namespace CSharpTranslator
 
             try
             {
-                var translator = TranslateProvider.GetTranslator(GeneratorType.TypeScript, configuration);
+                var translator = TranslateProvider.GetTranslator(AccessType.SourceCode, GeneratorType.TypeScript, configuration);
                 translator.Compile();
                 translator.Flush();
                 MessageBox.Show("File has been generated [" + configuration.OutputPath + "]");
@@ -90,6 +91,24 @@ namespace CSharpTranslator
             {
                 MessageBox.Show($"File Generation Failed: {ex.Message}");
             }
+
+
+
+            //////////// TEST
+
+            var assemblyConf = ConfigurationProvider.GetConfiguration("dll");
+            assemblyConf.OutputPath = configuration.OutputPath;
+            assemblyConf.OverrideExistingFile = true;
+            assemblyConf.Strategy = InclusionStrategy.PropertiesAndFields;
+            
+            var roslynTranslator = TranslateProvider.GetTranslator(AccessType.SourceCode, GeneratorType.TypeScript, configuration);
+            var assemblyTranslator = TranslateProvider.GetTranslator(AccessType.Assembly, GeneratorType.TypeScript, assemblyConf);
+
+            var solutionConfiguration = new SolutionConfiguration() { LinkStrategy = LinkStrategy.Link };
+            var solution = TranslateProvider.GetSolutionTranslator(solutionConfiguration, roslynTranslator, assemblyTranslator);
+            
+            solution.Compile();
+            solution.Flush();
         }
 
         private string GetOutputPath()

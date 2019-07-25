@@ -1,4 +1,5 @@
-﻿using CSharpTranslator.src.SyntaxHelpers;
+﻿using System;
+using CSharpTranslator.src.SyntaxHelpers;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace CSharpTranslator.src.Generators.TypeScript
@@ -15,7 +16,7 @@ namespace CSharpTranslator.src.Generators.TypeScript
                 case 0:
                     return (node.IsReadOnly) ? ReadonlyToken : "";
                 case 1:
-                    var text = char.ToLowerInvariant(node.Identifier[0]) + node.Identifier.Substring(1);
+                    var text = $"\t{char.ToLowerInvariant(node.Identifier[0]) + node.Identifier.Substring(1)}";
                     if (node.Type.UnderlyingKind == SyntaxKind.NullableType)
                         text += GlobalTsInfo.NullableToken;
                     return text;
@@ -48,6 +49,9 @@ namespace CSharpTranslator.src.Generators.TypeScript
                     break;
                 case SyntaxKind.ObjectKeyword:
                     text = "object";
+                    break;
+                case SyntaxKind.ByteKeyword:
+                    text = "number";
                     break;
                 default:
                     text = "any";
@@ -90,8 +94,10 @@ namespace CSharpTranslator.src.Generators.TypeScript
             {
                 case "DateTime":
                     return "Date";
+                case "Guid":
+                    return "string";
                 default:
-                    return rawKind;
+                    return "any";
             }
         }
     }

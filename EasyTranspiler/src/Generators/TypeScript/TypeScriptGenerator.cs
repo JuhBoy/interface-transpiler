@@ -1,24 +1,30 @@
-﻿using CSharpTranslator.src.Accessors;
+﻿using System.Collections.Generic;
 using CSharpTranslator.src.Core;
 using CSharpTranslator.src.SyntaxHelpers;
+using EasyTranspiler.src.Generators.TypeScript;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CSharpTranslator.src.Generators.TypeScript
 {
     internal class TypeScriptGenerator : IGenerator
     {
         private int _size;
+        public ILinkingResolver LinkingResolver { get; private set; }
 
-        internal TypeScriptGenerator()
+        private string CurrentHeadIdentifier { get; set; }
+        
+        internal TypeScriptGenerator(ILinkingResolver linkingLinkingResolver)
         {
             _size = 0;
+            LinkingResolver = linkingLinkingResolver;
         }
 
         public ISyntaxTree GetSyntaxTree(CSharpNode head)
         {
             _size = 0;
+            CurrentHeadIdentifier = head.Identifier;
             GenericNode node = BuildGenericTree(head);
-            TypeScriptSyntaxTree tree = new TypeScriptSyntaxTree(node, _size);
-            return tree;
+            return new TypeScriptSyntaxTree(node, _size, head.Identifier);
         }
 
         private GenericNode BuildGenericTree(CSharpNode head)
@@ -26,13 +32,28 @@ namespace CSharpTranslator.src.Generators.TypeScript
             GenericNode node = CreateGenericNode(head);
             _size++;
 
+            ProcessLinking(head);
+            
             foreach (var cSharpNode in head.Children)
             {
                 GenericNode child = BuildGenericTree(cSharpNode);
-                GenericNodeTreeHelper.AddChild(ref node, ref child);
+                GenericNodeTree.AddChild(ref node, ref child);
                 _size++;
             }
             return node;
+        }
+
+        private void ProcessLinking(CSharpNode node)
+        {
+            if (node.CSNodeType == CSharpNodeType.Class ||
+                node.CSNodeType == CSharpNodeType.Interface)
+            {
+                LinkingResolver.Add(CurrentHeadIdentifier, new List<string>());
+                return;
+            }
+
+            if (node.Type.Kind == SyntaxKind.IdentifierName)
+                LinkingResolver.Push(CurrentHeadIdentifier, node.Type.RawKind);
         }
 
         private GenericNode CreateGenericNode(CSharpNode node)

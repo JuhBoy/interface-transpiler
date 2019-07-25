@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CSharpTranslator.src.Core
 {
-    internal class Translator : ITranslator
+    internal class RoslynTranslator : ITranslator
     {
         internal IGeneratorConfiguration Configuration { get; }
         internal IGenerator Generator { get; }
@@ -25,20 +25,26 @@ namespace CSharpTranslator.src.Core
         private string CurrentFilePath { get; set; }
         private string CurrentOutputPath { get; set; }
 
-        public Translator(IGeneratorConfiguration configuration, GeneratorType generatorType)
+        public RoslynTranslator(IGeneratorConfiguration configuration, GeneratorType generatorType)
         {
             Configuration   = configuration ?? 
                               throw new NullReferenceException("Configuration Cannot be null");
             Generator       = GeneratorProvider.Get(generatorType);
             CurrentFilePath = Configuration.InputPath;
-            Builder = new List<FileBuilder>();
+            Builder         = new List<FileBuilder>();
         }
 
         public void Dispose()
         { }
 
-        public void CompileRecursively()
+        public void Compile()
         {
+            if ((File.GetAttributes(Configuration.InputPath) & FileAttributes.Directory) == 0)
+            {
+                InternalCompile();
+                return;
+            }
+
             string[] files = Directory.GetFiles(Configuration.InputPath, "*.cs", SearchOption.AllDirectories);
 
             foreach (var file in files)
@@ -46,7 +52,7 @@ namespace CSharpTranslator.src.Core
                 CurrentFilePath = file;
                 try
                 {
-                    Compile();
+                    InternalCompile();
                 }
                 catch (UnauthorizedAccessException ex)
                 {
@@ -60,7 +66,7 @@ namespace CSharpTranslator.src.Core
         }
 
         /// <inheritdoc cref="ITranslator.Compile"/>
-        public void Compile()
+        private void InternalCompile()
         {
             string text = File.ReadAllText(CurrentFilePath, Encoding.UTF8);
 

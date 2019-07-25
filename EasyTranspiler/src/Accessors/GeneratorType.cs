@@ -4,4 +4,10 @@
     {
         TypeScript
     }
+
+    public enum AccessType
+    {
+        SourceCode,
+        Assembly
+    }
 }

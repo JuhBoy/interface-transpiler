@@ -46,9 +46,12 @@ namespace CSharpTranslator.src.Core
                 _content.Append(node.Tokens[i].Text);
                 _content.Append(node.Tokens[i].Trivia.Right);
             }
-            
+
             if (lastCurrentLevelChild)
+            {
                 _content.Append(_closeStack.Pop());
+                _content.Append(Environment.NewLine);
+            }
         }
 
         public bool Flush()
