@@ -50,6 +50,7 @@ namespace CSharpTranslator.src.Generators.TypeScript
                 case SyntaxKind.ObjectKeyword:
                     text = "object";
                     break;
+                case SyntaxKind.EnumKeyword:
                 case SyntaxKind.ByteKeyword:
                     text = "number";
                     break;
@@ -97,7 +98,7 @@ namespace CSharpTranslator.src.Generators.TypeScript
                 case "Guid":
                     return "string";
                 default:
-                    return "any";
+                    return rawKind;
             }
         }
     }

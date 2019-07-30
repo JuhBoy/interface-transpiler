@@ -39,6 +39,9 @@ namespace CSharpTranslator.src.SyntaxHelpers
 
         public static SyntaxKind KindFromReflectionType(Type info)
         {
+            if (info.IsEnum)
+                return SyntaxKind.EnumKeyword;
+
             if (info.IsPrimitive)
                 return ExtractPrimitiveKind(info.Name);
 

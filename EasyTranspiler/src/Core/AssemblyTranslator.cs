@@ -44,7 +44,6 @@ namespace EasyTranspiler.src.Core
 
         public void Compile()
         {
-            
             Assembly assembly = Assembly.LoadFrom(Configuration.InputPath);
             
             var markerAttribute = GetAssemblyAttribute(assembly);
@@ -53,6 +52,7 @@ namespace EasyTranspiler.src.Core
             {
                 var head = new CSharpNode(type.Name, TypeConversion.FromCSharpReflection(type));
                 if (head.CSNodeType.Equals(CSharpNodeType.None)) continue;
+                head.Visibility = Visibility.Public;
 
                 Heads.Add(head);
 
@@ -74,7 +74,6 @@ namespace EasyTranspiler.src.Core
                 RawKind = TypeConversion.RawKindFromReflectionType(propertyInfo.PropertyType),
                 UnderlyingKind = TypeConversion.UnderlyingKindFromReflectionType(propertyInfo.PropertyType)
             };
-
             Heads.Last().Children.Add(node);
         }
 

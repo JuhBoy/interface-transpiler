@@ -38,7 +38,7 @@ namespace EasyTranspiler.src.Generators.TypeScript
                 case 2:
                     return ImportFromTokenIdentifier;
                 case 3:
-                    return $"./{identifier}.model.ts";
+                    return $"./{identifier}.model";
                 case 4:
                     return GlobalTsInfo.CloseExpressionToken;
                 default:
