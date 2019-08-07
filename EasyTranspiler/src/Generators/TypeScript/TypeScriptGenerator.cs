@@ -46,7 +46,7 @@ namespace CSharpTranslator.src.Generators.TypeScript
         private void ProcessLinking(CSharpNode node)
         {
             if (node.CSNodeType == CSharpNodeType.Class ||
-                node.CSNodeType == CSharpNodeType.Interface)
+                 node.CSNodeType == CSharpNodeType.Interface)
             {
                 LinkingResolver.Add(CurrentHeadIdentifier, new List<string>());
                 return;

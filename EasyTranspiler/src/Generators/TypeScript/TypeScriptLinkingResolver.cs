@@ -48,7 +48,8 @@ namespace EasyTranspiler.src.Generators.TypeScript
 
         public void Push(string identifier, string reference)
         {
-            if (!LinkingCache.ContainsKey(identifier)) return;
+            if (!LinkingCache.ContainsKey(identifier) ||
+                LinkingCache[identifier].Contains(reference)) return;
             LinkingCache[identifier].Add(reference);
         }
 
