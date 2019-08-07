@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Xml.Schema;
 using CSharpTranslator.src.SyntaxHelpers;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -89,18 +91,39 @@ namespace CSharpTranslator.src.Generators.TypeScript
             }
         }
 
+        private static readonly Dictionary<string, string> KnownIdentifierLookUpTable = new Dictionary<string,string>()
+        {
+            { "DateTime", "Date" },
+            { "Guid", "string" },
+            { "Uri", "string" }
+        };
+
         private static string GetKnownIdentifier(string rawKind)
         {
-            switch (rawKind)
-            {
-                case "DateTime":
-                    return "Date";
-                case "Guid":
-                case "Uri":
-                    return "string";
-                default:
-                    return rawKind;
-            }
+            return HasKnowIdentifier(rawKind) ? KnownIdentifierLookUpTable[rawKind] : rawKind;
+        }
+
+        public static bool HasKnowIdentifier(string rawKind)
+        {
+            return KnownIdentifierLookUpTable.ContainsKey(rawKind);
+        }
+
+        public static void SetAsUnknownType(ref GenericNode node)
+        {
+            if (!IsAPropertyOrField(ref node)) return;
+            node.Tokens[2].Text = "any";
+        }
+
+        public static bool IsAPropertyOrField(ref GenericNode node)
+        {
+            return node.Kind == Kind.Property || node.Kind == Kind.Field;
+        }
+
+        public static bool RawTypeIs(ref GenericNode node, string rawType)
+        {
+            var rawValue = node.Tokens[2].Text.Replace("[", "")
+                .Replace("]", "").Replace(";", "");
+            return rawValue == rawType;
         }
     }
 }

@@ -52,7 +52,7 @@ namespace CSharpTranslator.src.Generators.TypeScript
                 return;
             }
 
-            if (node.Type.Kind == SyntaxKind.IdentifierName)
+            if (node.Type.Kind == SyntaxKind.IdentifierName && !PropertyTsInfo.HasKnowIdentifier(node.Identifier))
                 LinkingResolver.Push(CurrentHeadIdentifier, node.Type.RawKind);
         }
 

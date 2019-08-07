@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using CSharpTranslator.src.Core;
 using CSharpTranslator.src.Generators;
+using CSharpTranslator.src.Generators.TypeScript;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace EasyTranspiler.src.Generators.TypeScript
 {
@@ -24,6 +26,14 @@ namespace EasyTranspiler.src.Generators.TypeScript
                 if (!LinkingCache.ContainsKey(identifier))
                 {
                     Console.WriteLine($"Linking Failed for type <{identifier}>");
+                    tree.TraverseTree((node, lon) =>
+                    {
+                        if (PropertyTsInfo.IsAPropertyOrField(ref node) &&
+                            PropertyTsInfo.RawTypeIs(ref node, identifier))
+                        {
+                            PropertyTsInfo.SetAsUnknownType(ref node);
+                        }
+                    });
                     continue;
                 }
 
