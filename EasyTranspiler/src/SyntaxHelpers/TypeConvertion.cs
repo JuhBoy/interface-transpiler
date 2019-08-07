@@ -29,7 +29,7 @@ namespace CSharpTranslator.src.SyntaxHelpers
 
         public static CSharpNodeType FromCSharpReflection(Type type)
         {
-            if (type.IsClass)
+            if (type.IsClass || IsStruct(type))
                 return CSharpNodeType.Class;
             if (type.IsInterface)
                 return CSharpNodeType.Interface;
