@@ -96,6 +96,7 @@ namespace CSharpTranslator.src.Generators.TypeScript
                 case "DateTime":
                     return "Date";
                 case "Guid":
+                case "Uri":
                     return "string";
                 default:
                     return rawKind;

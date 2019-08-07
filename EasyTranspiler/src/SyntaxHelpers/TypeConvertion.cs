@@ -84,7 +84,7 @@ namespace CSharpTranslator.src.SyntaxHelpers
 
         private static SyntaxKind ExtractPrimitiveKind(string name)
         {
-            if (name == "bool")
+            if (name == "bool" || name == "Boolean")
                 return SyntaxKind.BoolKeyword;
             if (name == "object")
                 return SyntaxKind.ObjectKeyword;

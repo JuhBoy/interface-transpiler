@@ -13,7 +13,7 @@ namespace CSharpTranslator.src.Generators.TypeScript
         public static readonly string ImportToken = "import";
         public static readonly string OpenContentToken = "{";
         public static readonly string CloseContentToken = "}";
-        public static readonly string NullableToken = "?";
+        public static readonly string NullableToken = "_"; // TODO: ? is for null-check property, which is not exactly nullable c# field.
         public static readonly string ArraySpecifier = "[]";
     }
 }

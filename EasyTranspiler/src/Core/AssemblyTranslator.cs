@@ -7,7 +7,6 @@ using CSharpTranslator.src.Accessors;
 using CSharpTranslator.src.Core;
 using CSharpTranslator.src.Generators;
 using CSharpTranslator.src.SyntaxHelpers;
-using Microsoft.CodeAnalysis.CSharp;
 using Transpile;
 
 namespace EasyTranspiler.src.Core
@@ -62,7 +61,7 @@ namespace EasyTranspiler.src.Core
                 Trees.Add(Generator.GetSyntaxTree(head));
             }
 
-            Trees.ForEach(tree => Generator.LinkingResolver.Resolve(tree)); 
+            Trees.ForEach(tree => Generator.LinkingResolver.Resolve(tree));
         }
 
         private void InsertPropertyNodeInTree(PropertyInfo propertyInfo)
