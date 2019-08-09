@@ -66,6 +66,12 @@ namespace EasyTranspiler.src.Core
 
         private void InsertPropertyNodeInTree(PropertyInfo propertyInfo)
         {
+            if (!string.IsNullOrEmpty(Configuration.AttributeNameConstraint))
+            {
+                var shouldBeAvoided = propertyInfo.GetCustomAttributes().Any(e => e.GetType().Name.Equals(Configuration.AttributeNameConstraint));
+                if (shouldBeAvoided) return;
+            }
+
             var node = new CSharpNode(propertyInfo.Name, CSharpNodeType.Property);
             node.Type = new TypeWrapper()
             {
