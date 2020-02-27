@@ -1,5 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Loader;
 using CSharpTranslator.src.Accessors;
+using Microsoft.Extensions.DependencyModel;
+using Microsoft.Extensions.DependencyModel.Resolution;
 
 namespace EasyTranspiler.src.Core
 {
@@ -33,6 +40,7 @@ namespace EasyTranspiler.src.Core
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
+                    string type = ex.GetType().FullName;
                 }
             }
         }

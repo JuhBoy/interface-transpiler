@@ -46,7 +46,8 @@ namespace CSharpTranslator.src.Generators.TypeScript
         private void ProcessLinking(CSharpNode node)
         {
             if (node.CSNodeType == CSharpNodeType.Class ||
-                 node.CSNodeType == CSharpNodeType.Interface)
+                 node.CSNodeType == CSharpNodeType.Interface ||
+                 node.CSNodeType == CSharpNodeType.Enum)
             {
                 LinkingResolver.Add(CurrentHeadIdentifier, new List<string>());
                 return;
@@ -85,6 +86,10 @@ namespace CSharpTranslator.src.Generators.TypeScript
                 case Kind.Class:
                 case Kind.Interface:
                     return InterfaceInfo.GetTokenTrivia(tokenIndex, node);
+                case Kind.Enum:
+                    return EnumTsInfo.GetTokenTrivia(tokenIndex, node);
+                case Kind.EnumValue:
+                    return EnumTsInfo.GetTokenValueTrivia(tokenIndex, node);
                 case Kind.Field:
                 case Kind.Property:
                     return PropertyTsInfo.GetTokenTrivia(tokenIndex, node);
@@ -100,6 +105,10 @@ namespace CSharpTranslator.src.Generators.TypeScript
                 case Kind.Class:
                 case Kind.Interface:
                     return InterfaceInfo.TokenContent(tokenIndex, node);
+                case Kind.Enum:
+                    return EnumTsInfo.GetTokenContent(tokenIndex, node);
+                case Kind.EnumValue:
+                    return EnumTsInfo.GetTokenValueContent(tokenIndex, node);
                 case Kind.Field:
                 case Kind.Property:
                     return PropertyTsInfo.TokenContent(tokenIndex, node);
@@ -115,6 +124,10 @@ namespace CSharpTranslator.src.Generators.TypeScript
                 case Kind.Interface:
                 case Kind.Class:
                     return InterfaceInfo.TokenSize;
+                case Kind.Enum:
+                    return EnumTsInfo.TokenSize;
+                case Kind.EnumValue:
+                    return EnumTsInfo.ValueSize;
                 case Kind.Field:
                 case Kind.Property:
                     return PropertyTsInfo.TokenSize;

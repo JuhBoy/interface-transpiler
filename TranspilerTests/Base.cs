@@ -17,14 +17,17 @@ namespace TranspilerTests
         [Fact]
         public void ShouldDoItsJob_WhenAsked()
         {
-            var assemblyConf = ConfigurationProvider.GetConfiguration(@"C:\Lab\P2.Marlin\P2.Marlin\bin\Debug\netcoreapp2.2\P2.Marlin.dll");
+            string link = @"C:\Lab\P2.LogCentral\LogServer\bin\Release\netcoreapp2.2\LogServer.dll";
+            //string link = @"C:\Lab\P2.Marlin\P2.Marlin\bin\Release\netcoreapp3.1\P2.Marlin.dll";
+
+            var assemblyConf = ConfigurationProvider.GetConfiguration(link);
             assemblyConf.OutputPath = @"C:\Users\JuH\Desktop\ReflectionModel";
             assemblyConf.OverrideExistingFile = true;
             assemblyConf.Strategy = InclusionStrategy.PropertiesAndFields;
 
             var assemblyTranslator = TranslateProvider.GetTranslator(AccessType.Assembly, GeneratorType.TypeScript, assemblyConf);
 
-            var solutionConf = new SolutionConfiguration() {LinkStrategy = LinkStrategy.Link};
+            var solutionConf = new SolutionConfiguration() { LinkStrategy = LinkStrategy.Link };
             var solution = TranslateProvider.GetSolutionTranslator(solutionConf, assemblyTranslator);
 
             solution.Compile();

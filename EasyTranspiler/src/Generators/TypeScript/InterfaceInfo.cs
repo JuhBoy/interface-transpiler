@@ -24,7 +24,7 @@ namespace CSharpTranslator.src.Generators.TypeScript
                 case 4:
                     return GlobalTsInfo.CloseContentToken;
                 default:
-                    return "";
+                    return string.Empty;
             }
         }
 
@@ -36,14 +36,14 @@ namespace CSharpTranslator.src.Generators.TypeScript
                     return GenericTrivia.Empty;
                 case 1:
                     return (csNode.Visibility == Visibility.Public)
-                        ? new GenericTrivia {Left = GlobalTsInfo.SpaceToken, Right = GlobalTsInfo.Void}
+                        ? new GenericTrivia { Left = GlobalTsInfo.SpaceToken, Right = GlobalTsInfo.Void }
                         : GenericTrivia.Empty;
                 case 2:
-                    return new GenericTrivia {Left = GlobalTsInfo.SpaceToken, Right = GlobalTsInfo.Void};
+                    return new GenericTrivia { Left = GlobalTsInfo.SpaceToken, Right = GlobalTsInfo.Void };
                 case 3:
-                    return new GenericTrivia {Left = GlobalTsInfo.SpaceToken, Right = GlobalTsInfo.LineJump};
+                    return new GenericTrivia { Left = GlobalTsInfo.SpaceToken, Right = GlobalTsInfo.LineJump };
                 case 4:
-                    return new GenericTrivia {Left = GlobalTsInfo.Void, Right = GlobalTsInfo.LineJump};
+                    return new GenericTrivia { Left = GlobalTsInfo.Void, Right = GlobalTsInfo.LineJump };
                 default:
                     return GenericTrivia.Empty;
             }

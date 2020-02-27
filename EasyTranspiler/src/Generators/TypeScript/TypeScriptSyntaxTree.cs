@@ -100,6 +100,8 @@ namespace CSharpTranslator.src.Generators
         Method,
         Interface,
         Class,
+        Enum,
+        EnumValue,
         Import
     }
 }

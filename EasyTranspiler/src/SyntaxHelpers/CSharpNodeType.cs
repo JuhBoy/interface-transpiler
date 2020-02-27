@@ -8,5 +8,7 @@
         Method,
         Interface,
         Class,
+        Enum,
+        EnumValue
     }
 }

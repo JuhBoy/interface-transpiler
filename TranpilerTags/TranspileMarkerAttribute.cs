@@ -8,7 +8,6 @@ namespace Transpile
         {
             OutputDirectory = outputDirectory;
         }
-
         public string OutputDirectory { get; }
     }
 

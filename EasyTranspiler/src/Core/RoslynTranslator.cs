@@ -154,7 +154,8 @@ namespace CSharpTranslator.src.Core
 
         private SyntaxNode GetDeclarationNode(SyntaxNode namespaceNode)
         {
-            SyntaxNode classOrInterface = namespaceNode.ChildNodes().FirstOrDefault(node => node.Kind() == SyntaxKind.ClassDeclaration);
+            SyntaxNode classOrInterface = namespaceNode.ChildNodes().FirstOrDefault(node => node.Kind() == SyntaxKind.ClassDeclaration ||
+                                                                                            node.Kind() == SyntaxKind.InterfaceDeclaration);
 
             if (classOrInterface == null)
                 throw new FileLoadException("Implementation not found");
@@ -163,8 +164,6 @@ namespace CSharpTranslator.src.Core
             if (!isAuthorized)
                 throw new UnauthorizedAccessException(
                     $"Class {Extractors.ExtractName(classOrInterface)} do not respect the Attribute constraint {Configuration.AttributeNameConstraint}");
-
-            classOrInterface = classOrInterface ?? namespaceNode.ChildNodes().FirstOrDefault(node => node.Kind() == SyntaxKind.InterfaceDeclaration);
 
             return classOrInterface;
         }

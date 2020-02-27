@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CSharpTranslator.src.SyntaxHelpers
 {
@@ -33,6 +31,8 @@ namespace CSharpTranslator.src.SyntaxHelpers
                 return CSharpNodeType.Class;
             if (type.IsInterface)
                 return CSharpNodeType.Interface;
+            if (type.IsEnum)
+                return CSharpNodeType.Enum;
 
             return CSharpNodeType.None;
         }
@@ -97,7 +97,7 @@ namespace CSharpTranslator.src.SyntaxHelpers
 
         private static bool IsStruct(Type type)
         {
-            return type.IsValueType && !type.IsPrimitive;
+            return type.IsValueType && !type.IsPrimitive && !type.IsEnum;
         }
 
         private static bool IsClassOrInterface(Type info)

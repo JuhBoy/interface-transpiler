@@ -34,7 +34,7 @@ namespace CSharpTranslator.src.Core
             int last = node.Tokens.Count;
             int modifier = 0;
 
-            if (node.Kind == Kind.Interface || node.Kind == Kind.Class)
+            if (node.Kind == Kind.Interface || node.Kind == Kind.Class || node.Kind == Kind.Enum)
             {
                 _closeStack.Push(node.Tokens[last-1]);
                 modifier = -1;

@@ -3,10 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using CSharpTranslator.src.Accessors;
 using CSharpTranslator.src.Core;
 using CSharpTranslator.src.Generators;
 using CSharpTranslator.src.SyntaxHelpers;
+using EasyTranspiler.src.Accessors;
+using EasyTranspiler.src.Core.Impl;
+using EasyTranspiler.src.Core.Utils;
+using Microsoft.Extensions.DependencyModel;
+using Microsoft.Extensions.DependencyModel.Resolution;
 using Transpile;
 
 namespace EasyTranspiler.src.Core
@@ -43,43 +49,29 @@ namespace EasyTranspiler.src.Core
 
         public void Compile()
         {
-            Assembly assembly = Assembly.LoadFrom(Configuration.InputPath);
-            
-            var markerAttribute = GetAssemblyAttribute(assembly);
+            var resolver = new AssemblyResolver(Configuration.InputPath);
+            Assembly assembly = resolver.Assembly;
 
-            foreach (var type in markerAttribute.Types ?? Enumerable.Empty<Type>())
+            try
             {
-                var head = new CSharpNode(type.Name, TypeConversion.FromCSharpReflection(type));
-                if (head.CSNodeType.Equals(CSharpNodeType.None)) continue;
-                head.Visibility = Visibility.Public;
+                var markerAttribute = GetAssemblyAttribute(assembly);
 
-                Heads.Add(head);
+                foreach (var type in markerAttribute.Types ?? Enumerable.Empty<Type>())
+                {
+                    INodeStrategy strategy = StrategyFactory.Get(type, Configuration.AttributeNameConstraint, Configuration.Strategy);
+                    CSharpNode root = strategy.ProduceNode();
+                    if (root == null) continue;
 
-                foreach (var property in type.GetProperties())
-                    InsertPropertyNodeInTree(property);
+                    ISyntaxTree syntaxTree = Generator.GetSyntaxTree(root);
+                    Trees.Add(syntaxTree);
+                }
 
-                Trees.Add(Generator.GetSyntaxTree(head));
+                Trees.ForEach(tree => Generator.LinkingResolver.Resolve(tree));
             }
-
-            Trees.ForEach(tree => Generator.LinkingResolver.Resolve(tree));
-        }
-
-        private void InsertPropertyNodeInTree(PropertyInfo propertyInfo)
-        {
-            if (!string.IsNullOrEmpty(Configuration.AttributeNameConstraint))
+            finally
             {
-                var shouldBeAvoided = propertyInfo.GetCustomAttributes().Any(e => e.GetType().Name.Equals(Configuration.AttributeNameConstraint));
-                if (shouldBeAvoided) return;
+                resolver.Dispose();
             }
-
-            var node = new CSharpNode(propertyInfo.Name, CSharpNodeType.Property);
-            node.Type = new TypeWrapper()
-            {
-                Kind = TypeConversion.KindFromReflectionType(propertyInfo.PropertyType),
-                RawKind = TypeConversion.RawKindFromReflectionType(propertyInfo.PropertyType),
-                UnderlyingKind = TypeConversion.UnderlyingKindFromReflectionType(propertyInfo.PropertyType)
-            };
-            Heads.Last().Children.Add(node);
         }
 
         public TranspileMarkerAssemblyAttribute GetAssemblyAttribute(Assembly assembly)
