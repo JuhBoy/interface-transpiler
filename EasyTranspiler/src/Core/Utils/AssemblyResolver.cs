@@ -17,7 +17,8 @@ namespace EasyTranspiler.src.Core.Utils
 
         public AssemblyResolver(string path)
         {
-            Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+            AssemblyPath = path;
+            Assembly = Assembly.LoadFile(path);
             DepsContext = DependencyContext.Load(Assembly);
 
             Resolver = new CompositeCompilationAssemblyResolver(new ICompilationAssemblyResolver[] {
@@ -26,11 +27,14 @@ namespace EasyTranspiler.src.Core.Utils
                 new PackageCompilationAssemblyResolver()
             });
 
+            var loo = AssemblyLoadContext.Default;
+
             AssemblyContext = AssemblyLoadContext.GetLoadContext(Assembly);
             AssemblyContext.Resolving += OnResolving;
         }
 
         public Assembly Assembly { get; set; }
+        public string AssemblyPath { get; }
 
         private Assembly OnResolving(AssemblyLoadContext context, AssemblyName assemblyName)
         {
@@ -41,7 +45,25 @@ namespace EasyTranspiler.src.Core.Utils
                 compLib = TryGetFromRuntimeLibs(assemblyName);
             }
 
-            return LoadLibrary(compLib);
+            if (compLib != null)
+                return LoadLibrary(compLib);
+            else
+                return LoadFromSharedLibrary(assemblyName);
+        }
+
+        private Assembly LoadFromSharedLibrary(AssemblyName assemblyName)
+        {
+            string dllPath = Path.Combine(Path.GetDirectoryName(AssemblyPath), $"{assemblyName.Name.Split(',')[0]}.dll");
+
+            try
+            {
+                return AssemblyContext.LoadFromAssemblyPath(dllPath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
         }
 
         private CompilationLibrary TryGetFromCompilationLibs(AssemblyName assemblyName)
@@ -57,7 +79,7 @@ namespace EasyTranspiler.src.Core.Utils
 
             if (runLib != null)
             {
-                var wrapper = new CompilationLibrary(
+                var compLib = new CompilationLibrary(
                     runLib.Type,
                     runLib.Name,
                     runLib.Version,
@@ -66,7 +88,7 @@ namespace EasyTranspiler.src.Core.Utils
                     runLib.Dependencies,
                     runLib.Serviceable);
 
-                return wrapper;
+                return compLib;
             }
 
             return null;

@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Julien</Authors>
     <Company>2befficient</Company>
-    <Version>1.0.5</Version>
+    <Version>1.0.9</Version>
+    <Description>- Now Support Enum types in Assembly mode.</Description>
   </PropertyGroup>
 
   <ItemGroup>
