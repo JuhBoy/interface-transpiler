@@ -70,7 +70,7 @@ namespace EasyTranspiler.src.Core
             }
             finally
             {
-                //resolver.Dispose();
+                resolver.Dispose();
             }
         }
 

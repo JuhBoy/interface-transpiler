@@ -27,8 +27,6 @@ namespace EasyTranspiler.src.Core.Utils
                 new PackageCompilationAssemblyResolver()
             });
 
-            var loo = AssemblyLoadContext.Default;
-
             AssemblyContext = AssemblyLoadContext.GetLoadContext(Assembly);
             AssemblyContext.Resolving += OnResolving;
         }

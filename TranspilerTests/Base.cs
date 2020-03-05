@@ -17,8 +17,9 @@ namespace TranspilerTests
         [Fact]
         public void ShouldDoItsJob_WhenAsked()
         {
-            string link = @"C:\Lab\P2.LogCentral\LogServer\bin\Release\netcoreapp2.2\LogServer.dll";
-            //string link = @"C:\Lab\P2.Marlin\P2.Marlin\bin\Debug\netcoreapp3.1\P2.Marlin.dll";
+            //string link = @"C:\Lab\P2.Nemo.DataModels\P2.Nemo.DataModels.SharedModels\bin\Debug\netcoreapp2.2\P2.Nemo.DataModels.SharedModels.dll";
+            string link = @"C:\Lab\P2.Marlin\P2.Marlin\bin\Debug\netcoreapp3.1\P2.Marlin.dll";
+            //string link = @"C:\Lab\P2.Marlin\P2.PostBuildTypescriptTranspiler\bin\Debug\netcoreapp3.1\dotnet-transpil.dll";
 
             var assemblyConf = ConfigurationProvider.GetConfiguration(link);
             assemblyConf.OutputPath = @"C:\Users\JuH\Desktop\ReflectionModel";
