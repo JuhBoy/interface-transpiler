@@ -70,7 +70,7 @@ namespace EasyTranspiler.src.Generators.TypeScript
                 case 1:
                     return GlobalTsInfo.Comma;
                 default:
-                    return string.Empty;
+                    return GlobalTsInfo.LineJump;
             }
         }
     }
